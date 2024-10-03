@@ -310,7 +310,7 @@ Page {
                         console.log("Image Path:", imagePath) // Log the image path
 
                         // Call the C++ method to insert user data
-                       var result = db.addStaff(firstnameField.text, lastnameField.text, imagePath, addressField.text,phonenumberField.text, emailField.text, "staFF123@" ,salaryField.text, hiredateField.text, 2, 0);
+                       var result = db.addStaff(firstnameField.text, lastnameField.text, imagePath, addressField.text, parseInt(phonenumberField.text), emailField.text, "staFF123@" ,salaryField.text, hiredateField.text, 2, 1);
                           if (result === 'success') { // Adjust based on your actual return type
                            //displayMessage(Messages.getErrorMessage("staffAddedSuccessfully"), "green");
                               dialog.message="Successfull"

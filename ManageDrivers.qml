@@ -103,12 +103,26 @@ Page {
             }
                 onAccepted: {
                     // Call the search function from the Database class
-                            var model = db.searchDriver(searchField.text);
-                            if (model) {
-                                sqlmodel = model; // Set the model to the search results
-                            }
+                            var model = "select * from driver where fname='%1'".arg(text)
+
+                             sqlmodel.query = model; // Set the model to the search results
                 }
            }
+
+            // Refresh button to the right
+                        Image {
+                            id: refreshicon
+                            source: "icon/refreshblack_60px.png"
+                            width: 35
+                            height: 35
+                            MouseArea{
+                                anchors.fill: parent
+                            onClicked: {
+                                // Call refresh functionality here
+                                sqlmodel.query = "select * from driver"; // Example query for refreshing data
+                            }
+                            }
+                        }
      }
          Rectangle{
              height: parent.height
@@ -119,26 +133,48 @@ Page {
                          query: "select * from driver"
                      }
                      Component{
-                         id: columnComponent
+                         id: columnComponents
                          QC.TableViewColumn {width: 100 }
                      }
-             QC.TableView {
-                 id: tableView
-                 width: parent.width
-                 height: parent.height-55
-                 anchors.margins: 20
+                     QC.TableView {
+                                     id: tableView
+                                     anchors.fill: parent
+                                     anchors.margins: 20
+                                     model: sqlmodel
 
-                 resources:{
-                     var roleList = sqlmodel.userRoleNames
-                     var temp = []
-                     for(var i in roleList){
-                         var role  = roleList[i]
-                         temp.push(columnComponent.createObject(tableView, { "role": role, "title": role}))
-                     }
-                     return temp
-                 }
-                 model: sqlmodel
-             }
+                                     Component {
+                                         id: columnComponent
+                                         QC.TableViewColumn {
+                                             delegate: TextInput {
+                                                 text: styleData.value
+                                                 onAccepted: {
+                                                     if (text !== styleData.value) {
+                                                         var success = sqlmodel.setData(styleData.index, text, styleData.role)
+                                                         if (!success) {
+                                                             text = styleData.value // Revert if update failed
+                                                         }
+                                                     }
+                                                 }
+                                                 onFocusChanged: {
+                                                     if (!focus && text !== styleData.value) {
+                                                         var success = sqlmodel.setData(styleData.index, text, styleData.role)
+                                                         if (!success) {
+                                                             text = styleData.value // Revert if update failed
+                                                         }
+                                                     }
+                                                 }
+                                             }
+                                         }
+                                     }
+
+                                     Component.onCompleted: {
+                                         var roleList = sqlmodel.userRoleNames
+                                         for(var i in roleList) {
+                                             var role = roleList[i]
+                                             tableView.addColumn(columnComponent.createObject(tableView, { "role": role, "title": role, "width": 100 }))
+                                         }
+                                     }
+                                 }
          }
      }
 

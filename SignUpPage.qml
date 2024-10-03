@@ -135,7 +135,7 @@ id:signupPage
                            console.log("Password:", passwordField.text)
 
                            // Call the C++ method to insert user data
-                           db.addStaff(14,firstnameField.text, lastnameField.text, emailField.text, parseInt(phonenumberField.text), "user@example.com", 2000000, "2024-08-28");
+                           db.addStaff(firstnameField.text, lastnameField.text, emailField.text, parseInt(phonenumberField.text), "user@example.com", 2000000, "2024-08-28");
                        }
                        Layout.fillWidth: true
 

@@ -96,7 +96,25 @@ Page {
                   radius: 4
                   border.color: "black"
           }
+              onAccepted: {
+                  // Call the search function from the Database class
+                  var model = "select * from route where source='%1'".arg(text)
+                  sqlmodel.query = model; // Set the model to the search results
+              }
          }
+          Image {
+              id: refresh
+              source: "icon/refreshblack_60px.png"
+              width: 35
+              height: 35
+              MouseArea{
+                  anchors.fill: parent
+              onClicked: {
+                  // Call refresh functionality here
+                  sqlmodel.query = "select * from route"; // Example query for refreshing data
+              }
+              }
+          }
      }
          Rectangle{
              height: parent.height

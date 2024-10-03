@@ -55,10 +55,7 @@ function getErrorMessage(type) {
             return "Please enter a valid salary.";
         case "driverInvalidHireDate":
             return "Please enter a valid hire date.";
-        case "driverAlreadyExists":
-            return "Driver already exists.";
-        case "driversAddedSuccessfully":
-            return "Driver added successfully.";
+
 
             // Add Route Form messages
         case "routeEmptyField":
@@ -73,8 +70,7 @@ function getErrorMessage(type) {
             return "Please enter a valid Stop Name.";
         case "routeInvalidLongLat":
             return "Please enter valid coordinates.";
-        case "routeAddedSuccessfully":
-            return "Route added successfully.";
+
 
             // Post Form messages
         case "postEmptyField":

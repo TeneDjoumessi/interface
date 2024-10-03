@@ -99,10 +99,26 @@ Page {
                        border.color: "black"
                }
                    onAccepted: {
-                       db.searchStaff(text); // Call the search function
+                       // Call the search function from the Database class
+                               var model = "select * from staff where fname='%1'".arg(text)
+
+                                sqlmodel.query = model; // Set the model to the search results
                    }
 
               }
+               Image {
+                   id: refresh
+                   source: "icon/refreshblack_60px.png"
+                   width: 35
+                   height: 35
+                   MouseArea{
+                       anchors.fill: parent
+                   onClicked: {
+                       // Call refresh functionality here
+                       sqlmodel.query = "select * from staff"; // Example query for refreshing data
+                   }
+                   }
+               }
         }
 
 

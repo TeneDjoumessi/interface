@@ -197,7 +197,7 @@ Row{
              }
          }
 
-         Row {
+        /* Row {
              x: 30
              spacing: 10
              Image {
@@ -219,7 +219,7 @@ Row{
                      }
                  }
              }
-         }
+         }*/
 
          Row {
              x: 30

@@ -1,10 +1,8 @@
 #include "database.h"
 #include <QSqlTableModel>
-#include <QSqlQuery>
-#include <QObject>
 #include <QSqlError>
 #include <QDebug>
-#include <QSqlQueryModel>
+
 
 Database::Database(QObject *parent) : QObject(parent), adminStatus(false) // Initialize adminStatus
 {
@@ -33,7 +31,7 @@ Database::Database(QObject *parent) : QObject(parent), adminStatus(false) // Ini
          deleteStaff();
          deleteRoute();
          deleteLostObject();*/
-//         addStaff("NOM", "prenom","image","Address", 642567324,"email",500000,"28 AOUT 2024");
+         addStaff("Admin", "Admin","image","Admin-Address", 642887324,"admin@gmail.com",500000,"28 AOUT 2024");
 //         addBus(2,"Toyota MV","Red",60,"CM3TY56","Super");
 //         addRoute("Mvog-ada","Mvan","Efouland","la235N","la23465E",2);
 //         addLostObject("image","1","28-10-02","i lost my bag its black");
@@ -49,53 +47,6 @@ void Database::setIsAdmin(bool value)
 bool Database::isAdmin() const
 {
     return adminStatus; // Return the current admin status
-}
-
-QAbstractItemModel *Database::searchDriver(const QString &searchTerm)
-{
-    QSqlTableModel *model = new QSqlTableModel(this, db);
-        model->setTable("driver");
-
-        // Prepare the query to filter results based on the search term
-        model->setFilter(QString("fname LIKE '%%1%' OR lname LIKE '%%1%'").arg(searchTerm));
-        model->select();
-
-        // Check if any results were found
-        if (model->rowCount() == 0) {
-            qDebug() << "No drivers found with the search term:" << searchTerm;
-        }
-
-        return model; // Return the filtered model
-}
-
-QAbstractItemModel *Database::searchBus(const QString &searchTerm)
-{
-    QSqlTableModel *model = new QSqlTableModel(this, db);
-        model->setTable("bus");
-
-        // Prepare the query to filter results based on the search term
-        model->setFilter(QString("busname LIKE '%%1%' OR busmatricule LIKE '%%1%'").arg(searchTerm));
-        model->select();
-
-        // Check if any results were found
-        if (model->rowCount() == 0) {
-            qDebug() << "No buses found with the search term:" << searchTerm;
-        }
-
-        return model; // Return the filtered model
-}
-
-void Database::searchStaff(const QString &searchTerm)
-{
-    QSqlQueryModel *model = new QSqlQueryModel(this);
-        QString queryString = "SELECT * FROM staff";
-
-        if (!searchTerm.isEmpty()) {
-            queryString += " WHERE fname LIKE '%" + searchTerm + "%' OR lname LIKE '%" + searchTerm + "%'";
-        }
-
-        model->setQuery(queryString);
-        emit staffModelUpdated(model); // Emit signal to notify QML
 }
 
 QStringList Database::getBusNames()
@@ -209,6 +160,7 @@ int Database::checkstaff(int phonenum, QString password)
 ;           qDebug()<<query.value(0)<<query.value(1)<<query.value(2)<<query.value(3);
             status = query.value(0).toInt();
             role = query.value(1).toInt();
+//            QString storedPassword = query.value(3).toString();
 
             // Set admin status based on role
              if (role == 1) // Assuming role 1 is admin
@@ -231,22 +183,6 @@ int Database::checkstaff(int phonenum, QString password)
     }
     return  code;
 }
-
-/*void Database::createTableUser()
-{
-    bool success = false;
-
-       QSqlQuery query;
-       query.prepare("CREATE TABLE people(id INTEGER PRIMARY KEY, name TEXT);");
-
-       if (!query.exec())
-       {
-           qDebug() << "Couldn't create the table 'people': one might already exist.";
-           success = false;
-       }
-
-
-}*/
 
 void Database::createTableDriver()
 {
@@ -327,6 +263,8 @@ QString Database::addStaff(QString fname, QString lname, QString imagePath ,QStr
     QString defaultPassword = "staFF123@";
         int role = 2; // Default role
         int status = 1; // Default status
+
+
 
       QSqlQuery query;
       query.prepare("INSERT INTO staff (fname,lname, image, address,phonenum,email,password,salary, date, role, status) "

@@ -4,6 +4,7 @@ QT += qml quick sql
 CONFIG += c++11
 
 SOURCES += main.cpp \
+    SqlQueryModel.cpp \
     database.cpp
 
 RESOURCES += qml.qrc

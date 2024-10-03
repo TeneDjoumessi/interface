@@ -1,7 +1,69 @@
+/*#ifndef SQLQUERYMODEL_H
+#define SQLQUERYMODEL_H
+#include <QSqlQuery>
+#include <QSqlQueryModel>
+#include <QSqlRecord>
+
+class SqlQueryModel : public QSqlQueryModel
+{
+    Q_OBJECT
+    Q_PROPERTY(QString query READ queryStr WRITE setQueryStr NOTIFY queryStrChanged)
+    Q_PROPERTY(QStringList userRoleNames READ userRoleNames CONSTANT)
+public:
+    using QSqlQueryModel::QSqlQueryModel;
+
+    QHash<int, QByteArray> roleNames() const
+    {
+       QHash<int, QByteArray> roles;
+       for (int i = 0; i < record().count(); i ++) {
+           roles.insert(Qt::UserRole + i + 1, record().fieldName(i).toUtf8());
+       }
+       return roles;
+   }
+    QVariant data(const QModelIndex &index, int role) const
+    {
+        QVariant value;
+        if (index.isValid()) {
+            if (role < Qt::UserRole) {
+                value = QSqlQueryModel::data(index, role);
+            } else {
+                int columnIdx = role - Qt::UserRole - 1;
+                QModelIndex modelIndex = this->index(index.row(), columnIdx);
+                value = QSqlQueryModel::data(modelIndex, Qt::DisplayRole);
+            }
+        }
+        return value;
+    }
+    QString queryStr() const{
+        return query().lastQuery();
+    }
+    void setQueryStr(const QString &query){
+        if(queryStr() == query)
+            return;
+        setQuery(query);
+        emit queryStrChanged();
+    }
+    QStringList userRoleNames() const {
+        QStringList names;
+        for (int i = 0; i < record().count(); i ++) {
+            names << record().fieldName(i).toUtf8();
+        }
+        return names;
+    }
+signals:
+    void queryStrChanged();
+};
+#endif // SQLQUERYMODEL_H
+*/
+
+
+// manage driver.qml
+
 import QtQuick 2.0
 import QtQuick.Controls 2.0
-import QtQuick.Controls 1.0 as QC
+import QtQuick.Controls 1.4 as QC
 import QtQuick.Controls.Styles 1.0
+import SQL 1.0
 Page {
      anchors.fill: parent
      header:ToolBar{
@@ -88,6 +150,7 @@ Page {
             }
 
             TextField {
+                id: searchField
                 placeholderText: "Search"
                 implicitWidth: 400
                 color: "black"
@@ -99,104 +162,60 @@ Page {
                     radius: 4
                     border.color: "black"
             }
+                onAccepted: {
+                    // Call the search function from the Database class
+                            var model = "select * from driver where fname='%1'".arg(text)
+
+                             sqlmodel.query = model; // Set the model to the search results
+                }
            }
+
+            // Refresh button to the right
+                        Image {
+                            id: refreshicon
+                            source: "icon/refreshblack_60px.png"
+                            width: 35
+                            height: 35
+                            MouseArea{
+                                anchors.fill: parent
+                            onClicked: {
+                                // Call refresh functionality here
+                                sqlmodel.query = "select * from driver"; // Example query for refreshing data
+                            }
+                            }
+                        }
      }
          Rectangle{
              height: parent.height
              color: "#d5d5cf"
              width: parent.width
-
+             SqlQueryModel{
+                         id: sqlmodel
+                         query: "select * from driver"
+                     }
+                     Component{
+                         id: columnComponent
+                         QC.TableViewColumn {width: 100 }
+                     }
              QC.TableView {
                  id: tableView
                  width: parent.width
                  height: parent.height-55
                  anchors.margins: 20
-                 model: 50
 
-
-
-                 QC.TableViewColumn {
-                     role: "driverid"
-                     title: "Driver ID"
-                     width: tableView.width * 0.1
-                 }
-                 QC.TableViewColumn {
-                     role: "firstName"
-                     title: "FirstName"
-                     width: tableView.width * 0.3
-                 }
-                 QC.TableViewColumn {
-                     role: "lastname"
-                     title: "LastName"
-                     width: tableView.width * 0.3
-                 }
-                 QC.TableViewColumn {
-                     role: "busname"
-                     title: "Bus Name"
-                     width: tableView.width * 0.3
-                 }
-                 QC.TableViewColumn {
-                     role: "phonenumber"
-                     title: "Phone number"
-                     width: tableView.width * 0.2
-                 }
-                 QC.TableViewColumn {
-                     role: "address"
-                     title: "Address"
-                     width: tableView.width * 0.4
-                 }
-                 QC.TableViewColumn {
-                     role: "email"
-                     title: "Email"
-                     width: tableView.width * 0.3
-                 }
-                 QC.TableViewColumn {
-                     role: "dateofhire"
-                     title: "Date of Hire"
-                     width: tableView.width * 0.3
-                 }
-                 QC.TableViewColumn {
-                     role: "status"
-                     title: "Status"
-                     width: tableView.width * 0.3
-
-                     delegate: Row {
-                     spacing: 10
-                     height: 40
-                    CheckBox {
-
-                    checked: model.status === "Active"
-                    onCheckedChanged: {
-                   // Handle block/unblock logic here
-                      }
-                    }
-                    Image {
-                       source: "icon/Edit.svg"
-                       width: 20
-                        height: 20
-                     MouseArea {
-                     anchors.fill: parent
-                     onClicked: {
-                     // Handle edit logic here
-                        }
-                    }
-                  }
-                    Image {
-                      source: "icon/trash_64px.png"
-                      width: 20
-                      height: 20
-                      MouseArea {
-                      anchors.fill: parent
-                      onClicked: {
-                     // Handle delete logic here
-                      }
+                 resources:{
+                     var roleList = sqlmodel.userRoleNames
+                     var temp = []
+                     for(var i in roleList){
+                         var role  = roleList[i]
+                         temp.push(columnComponent.createObject(tableView, { "role": role, "title": role}))
                      }
-                    }
+                     return temp
                  }
-                 }
+
+                 model: sqlmodel
              }
          }
      }
-
 
 }

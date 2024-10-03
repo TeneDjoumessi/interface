@@ -73,5 +73,6 @@
         <file>UserRoleManager.qml</file>
         <file>DatabaseConnection.qml</file>
         <file>Messages.js</file>
+        <file>icon/refreshblack_60px.png</file>
     </qresource>
 </RCC>

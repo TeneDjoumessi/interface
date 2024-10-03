@@ -14,11 +14,6 @@ public:
    Q_INVOKABLE void setIsAdmin(bool value); // Set admin status
    Q_INVOKABLE bool isAdmin() const; // Get admin status
 
-    // New search methods
-        Q_INVOKABLE QAbstractItemModel* searchDriver(const QString &searchTerm);
-        Q_INVOKABLE QAbstractItemModel* searchBus(const QString &searchTerm);
-        Q_INVOKABLE void searchStaff(const QString &searchTerm); // Add this line
-
     // Add the new method here
    Q_INVOKABLE QStringList getBusNames(); // Method to get bus names
     Q_INVOKABLE QStringList getBusMatricule(); // Method to get bus matricule
@@ -63,6 +58,7 @@ private:
         void createTableStaff();
          void createTableRoutes();
           void createTableLostObjects();
+
 
 
 };

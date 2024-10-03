@@ -1,18 +1,22 @@
 #ifndef SQLQUERYMODEL_H
 #define SQLQUERYMODEL_H
+
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QDebug>
+#include <QSqlDatabase>
 
 class SqlQueryModel : public QSqlQueryModel
 {
     Q_OBJECT
     Q_PROPERTY(QString query READ queryStr WRITE setQueryStr NOTIFY queryStrChanged)
     Q_PROPERTY(QStringList userRoleNames READ userRoleNames CONSTANT)
+
 public:
-    using QSqlQueryModel::QSqlQueryModel;
+    explicit SqlQueryModel(QObject *parent = nullptr)
+        : QSqlQueryModel(parent) {}
 
     QHash<int, QByteArray> roleNames() const override
     {
@@ -57,23 +61,23 @@ public:
         query.bindValue(":id", id);
 
         if (query.exec()) {
-                if (QSqlDatabase::database().commit()) {
-                    emit dataChanged(modelIndex, modelIndex);
-                    refresh();
-                    qDebug() << "Update successful for id:" << id << "column:" << columnName << "new value:" << value;
-                    return true;
-                } else {
-                    QSqlDatabase::database().rollback();
-                    qDebug() << "Commit failed:" << QSqlDatabase::database().lastError().text();
-                    return false;
-                }
+            if (QSqlDatabase::database().commit()) {
+                emit dataChanged(modelIndex, modelIndex);
+                refresh();
+                qDebug() << "Update successful for id:" << id << "column:" << columnName << "new value:" << value;
+                return true;
             } else {
                 QSqlDatabase::database().rollback();
-                qDebug() << "Update failed:" << query.lastError().text();
-                qDebug() << "Query:" << query.lastQuery();
-                qDebug() << "Bound values:" << query.boundValues();
+                qDebug() << "Commit failed:" << QSqlDatabase::database().lastError().text();
                 return false;
             }
+        } else {
+            QSqlDatabase::database().rollback();
+            qDebug() << "Update failed:" << query.lastError().text();
+            qDebug() << "Query:" << query.lastQuery();
+            qDebug() << "Bound values:" << query.boundValues();
+            return false;
+        }
     }
 
     Qt::ItemFlags flags(const QModelIndex &index) const override
@@ -108,4 +112,5 @@ public:
 signals:
     void queryStrChanged();
 };
+
 #endif // SQLQUERYMODEL_H
